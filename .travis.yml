@@ -1,0 +1,21 @@
+language: python
+
+python:
+  - 3.6
+
+bundler_args: --retry 3
+
+install:
+  - sudo apt-get update
+  - ./utils/travis_miniconda.sh
+  - PATH="$HOME/miniconda/bin:$PATH"
+  - conda env create -f environment.yml
+  - source activate student_project
+
+script:
+   # This automatically executes all notebooks (*.ipynb)
+   # in the root directory. If you only want to execute
+   # selected notebooks or notebooks in subdirectories,
+   # please go ahead and edit the file to meet your 
+   # needs.
+   - travis_wait python utils/travis_runner.py

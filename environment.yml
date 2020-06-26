@@ -1,14 +1,12 @@
-name: student_project
+name: angrist_1990
 
 dependencies:
+- python
 - numpy
 - pandas
 - jupyterlab
 - matplotlib
 - seaborn
-- scipy
 - statsmodels
 - pip
 - pip:
-
-

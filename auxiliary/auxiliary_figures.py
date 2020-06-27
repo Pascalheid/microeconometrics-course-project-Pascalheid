@@ -49,9 +49,7 @@ def get_figure1():
         axis.legend(legend_lines, ["ineligible", "elgible"])
     ax1.set_ylabel("Whites Earnings in 1978 Dollars")
     ax2.set_ylabel("Nonwhites Earnings in 1978 Dollars")
-    fig1 = fig1.tight_layout()
-
-    return fig1
+    fig1.tight_layout()
 
 
 def get_figure2():
@@ -91,8 +89,6 @@ def get_figure2():
     axs[0, 0].set_title("Whites")
     axs[0, 1].set_title("Nonwhites")
     fig2.suptitle("Difference in earnings by cohort and ethnicity", fontsize=13)
-
-    return fig2
 
 
 def get_figure3():
@@ -149,15 +145,12 @@ def get_figure3():
 
     # plot earnings residuals on probablity residuals
     fig, ax = plt.subplots()
-    ax.scatter(x=data["pres"], y=data["ernres_y"])
+    ax.scatter(x=data["pres"], y=data["ernres_y"], c="black", marker="8")
     ax.plot(data["pres"], fitted_values, color="red")
     ax.set_ylim([-3100, 3100])
     ax.set_xlim([-0.09, 0.17])
     ax.set_ylabel("Earnings Residual")
     ax.set_xlabel("Probability Residual")
-    fig
-
-    return fig
 
 
 def prepare_data_figure12():

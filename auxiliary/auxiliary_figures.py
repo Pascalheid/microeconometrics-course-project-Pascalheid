@@ -106,7 +106,7 @@ def get_figure3():
 
     """
     # load data set
-    data = pd.read_stata(r"data\cwhsc_new.dta")
+    data = pd.read_stata("data/cwhsc_new.dta")
 
     # drop some variables
     data = data.loc[
@@ -192,7 +192,7 @@ def prepare_data_figure12():
         "eligible",
     ] = 1
 
-    data_cpi = pd.read_stata(r"data\cpi_angrist1990.dta")
+    data_cpi = pd.read_stata("data/cpi_angrist1990.dta")
     data = pd.merge(data, data_cpi, on="year")
 
     data = data.loc[data["type"] == "TAXAB"]

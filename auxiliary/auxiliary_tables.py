@@ -21,10 +21,10 @@ def get_table1():
         for the respective ethnicity specified as key.
 
     """
-    data = pd.read_stata(r"data\cwhsa.dta")
+    data = pd.read_stata("data/cwhsa.dta")
     data["type"] = "TAXAB"
 
-    temp_data = pd.read_stata(r"data\cwhsb.dta")
+    temp_data = pd.read_stata("data/cwhsb.dta")
     data = data.append(temp_data)
 
     data = data.loc[(data["year"] > 65) & (data["byr"] >= 50)]
@@ -157,7 +157,7 @@ def get_table2():
         for the respective ethnicity specified as key.
 
     """
-    data_cwhsa = pd.read_stata(r"data\cwhsa.dta")
+    data_cwhsa = pd.read_stata("data/cwhsa.dta")
 
     data_cwhsa = data_cwhsa.loc[
         (data_cwhsa["year"] == 70) & (data_cwhsa["byr"] >= 51),
@@ -185,7 +185,7 @@ def get_table2():
 
     data_cwhsa = data_cwhsa.groupby(["byr", "white", "eligible"])["vnu1"].sum()
 
-    data_dmdc = pd.read_stata(r"data\dmdcdat.dta")
+    data_dmdc = pd.read_stata("data/dmdcdat.dta")
 
     # create eligibility dummy
     data_dmdc["eligible"] = 0
@@ -315,7 +315,7 @@ def get_table2():
         table_2[ethnicity] = table_2_temp
 
     # read the SIPP data set
-    data_sipp = pd.read_stata(r"data\sipp2.dta")
+    data_sipp = pd.read_stata("data/sipp2.dta")
 
     for dummy, ethnicity in enumerate(["white", "nonwhite"]):
         for year in np.arange(1950, 1954):
@@ -478,8 +478,8 @@ def get_table3():
             )
 
     # fill table 3 with new values
-    data = pd.read_stata(r"data\cwhsc_new.dta")
-    data_cpi = pd.read_stata(r"data\cpi_angrist1990.dta")
+    data = pd.read_stata("data/cwhsc_new.dta")
+    data_cpi = pd.read_stata("data/cpi_angrist1990.dta")
     data = pd.merge(data, data_cpi, on="year")
 
     data["cpi"] = (data["cpi"] / data.loc[data["year"] == 78, "cpi"].mean()).round(3)
@@ -608,7 +608,7 @@ def get_table4():
         for the respective ethnicity specified as key.
 
     """
-    data = pd.read_stata(r"data\cwhsc_new.dta")
+    data = pd.read_stata("data/cwhsc_new.dta")
     data = data.loc[data["year"] >= 81].reset_index(drop=True)
 
     # create cohort and year dummies

@@ -49,7 +49,7 @@ def get_figure1():
         axis.legend(legend_lines, ["ineligible", "elgible"])
     ax1.set_ylabel("Whites Earnings in 1978 Dollars")
     ax2.set_ylabel("Nonwhites Earnings in 1978 Dollars")
-    fig1.tight_layout()
+    fig1 = fig1.tight_layout()
 
     return fig1
 

@@ -9,4 +9,12 @@
 </a>
 [![Build Status](https://travis-ci.org/HumanCapitalAnalysis/microeconometrics-course-project-Pascalheid.svg?branch=master)](https://travis-ci.org/HumanCapitalAnalysis/microeconometrics-course-project-Pascalheid)
 
+## Replication Project on Lifetime Earnings and the Vietnam Era Draft Lottery: Evidence from Social Security Administrative Records by Joshua Angrist (1990)
+
+The notebook [Angrist_1990.ipynb](https://github.com/HumanCapitalAnalysis/microeconometrics-course-project-Pascalheid/blob/master/Angrist_1990.ipynb) contains a project by [Pascal Heid](https://github.com/Pascalheid) for the 2020 iteration of the [Mircoeconometrics](https://microeconometrics.readthedocs.io/) Master class at the university of Bonn. It replicates the results from the following paper:
+
+
+Angrist, Joshua. (1990). [Lifetime Earnings and the Vietnam Era Draft Lottery: Evidence from Social Security Administrative Records](https://www.jstor.org/stable/2006669?seq=1#metadata_info_tab_contents). *American Economic Review*. 80. 313-36.
+
+
 

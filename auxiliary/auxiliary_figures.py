@@ -175,10 +175,10 @@ def prepare_data_figure12():
         and ineligible for different groups (by ethnicity, year and birth cohort).
 
     """
-    data = pd.read_stata(r"data\cwhsa.dta")
+    data = pd.read_stata("data/cwhsa.dta")
     data["type"] = "TAXAB"
 
-    temp_data = pd.read_stata(r"data\cwhsb.dta")
+    temp_data = pd.read_stata("data/cwhsb.dta")
     data = data.append(temp_data)
 
     data = data.loc[(data["year"] > 65) & (data["byr"] >= 50)]

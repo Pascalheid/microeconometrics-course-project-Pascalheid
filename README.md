@@ -1,7 +1,6 @@
 # Course project template
 
-.. image:: https://mybinder.org/v2/gh/HumanCapitalAnalysis/microeconometrics-course-project-Pascalheid/56a37c837c8c51d49aa1dca96afa810572f9c4b9
-   :target: mybinder.org
+
 
 This is a template for course projects. We use [GitHub Classroom](https://classroom.github.com) to administrate our student projects and so you need to sign up for a [GitHub Account](http://github.com).
 
@@ -15,7 +14,7 @@ Please ensure that a brief description of your project is included in the [READM
   src="https://raw.githubusercontent.com/jupyter/design/master/logos/Badges/nbviewer_badge.png"
       width="109" height="20">
 </a>
-<a href="https://mybinder.org/v2/gh/HumanCapitalAnalysis/template-course-project/master?filepath=example_project.ipynb"
+<a href="https://hub.gke.mybinder.org/user/humancapitalana-ject-pascalheid-aqgaqpw1/notebooks/Angrist_1990.ipynb"
     target="_parent">
     <img align="center"
        src="https://mybinder.org/badge_logo.svg"

@@ -21,9 +21,12 @@ def get_table1():
         for the respective ethnicity specified as key.
 
     """
+    # read data for years 64 to 77
     data = pd.read_stata("data/cwhsa.dta")
+    # declare it as FICA data
     data["type"] = "TAXAB"
 
+    # reat FICA and Total W-2 data for years 78 and onwards
     temp_data = pd.read_stata("data/cwhsb.dta")
     data = data.append(temp_data)
 
@@ -42,17 +45,19 @@ def get_table1():
     data = pd.concat([data, pd.get_dummies(data["race"], prefix="race")], axis=1)
     data.rename(columns={"race_1": "white", "race_2": "nonwhite"}, inplace=True)
 
-    # mean and weights for nonzeros
+    # create the average earnings for those with nonzero earnings
     data["earn_nz"] = data["vmn1"] / (1 - data["vfin1"])
+    # create the sample size for those with nonzero earnings
     data["wt_nz"] = data["vnu1"] * (1 - data["vfin1"])
 
+    # rename FICA observations properly for the whole data set
     data.loc[data["type"] == "TAXAB", "type"] = "FICA"
-    # create variance
+    # create variance of the earnings from the reported standard deviations
     var = data["vsd1"] ** 2
-    # variance of nonzero cells
+    # create variance of nonzero earnings
     data["var_nz"] = var * (data["vnu1"] / data["wt_nz"])
 
-    # adjust index for groupby
+    # get the inverse number of total sample size of nonzero earnings by group
     wtmult = pd.DataFrame()
     wtmult["wtmult"] = (
         1 / data.groupby(["white", "byr", "year", "eligible", "type"])["wt_nz"].sum()
@@ -61,6 +66,7 @@ def get_table1():
         data, wtmult, how="outer", on=["white", "byr", "year", "eligible", "type"]
     )
 
+    # get in group variance
     data["var_cm"] = data["wtmult"] * data["var_nz"]
 
     # get groupby weighted means
@@ -75,6 +81,7 @@ def get_table1():
     nonzero_weights_index = sum_group_weights.loc[sum_group_weights["wt_nz"] != 0].index
     data_temp.set_index(["white", "byr", "year", "eligible", "type"], inplace=True)
     data_temp = data_temp.loc[nonzero_weights_index]
+    # get weighted mean of the mean and variance of earnings by group
     data_temp = data_temp.groupby(["white", "byr", "year", "eligible", "type"]).apply(
         lambda x: np.average(x[["var_cm", "earn_nz"]], weights=x["wt_nz"], axis=0)
     )
@@ -82,6 +89,7 @@ def get_table1():
         data_temp.to_list(), columns=["var_cm", "earn_nz"], index=data_temp.index
     )
 
+    # get the difference in earnings and its standard deviation per group across eligibility
     index_eligible = (slice(None), slice(None), slice(None), 1, slice(None))
     index_non_eligible = (slice(None), slice(None), slice(None), 0, slice(None))
     treatment_effect = data_temp.loc[index_eligible, "earn_nz"].reset_index(
@@ -93,6 +101,7 @@ def get_table1():
         + data_temp.loc[index_non_eligible, "var_cm"].reset_index("eligible", drop=True)
     ) ** 0.5
 
+    # get results into a nice looking table
     table_1 = {}
     for dummy, ethnicity in enumerate(["white", "nonwhite"]):
         new_dummy = 1 - dummy

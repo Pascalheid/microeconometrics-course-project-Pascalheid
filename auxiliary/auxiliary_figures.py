@@ -20,7 +20,7 @@ def get_figure1():
 
     """
     # get the processed data for plotting
-    data_temp = prepare_data_figure12()[0]
+    data = prepare_data_figure12()[0]
 
     # create figure 1
     fig1, (ax1, ax2) = plt.subplots(1, 2)
@@ -33,14 +33,14 @@ def get_figure1():
             axis.plot(
                 "year",
                 "real_earnings",
-                data=data_temp.loc[(ethnicity, cohort, 0), :],
+                data=data.loc[(ethnicity, cohort, 0), :],
                 marker=".",
                 color="red",
             )
             axis.plot(
                 "year",
                 "real_earnings",
-                data=data_temp.loc[(ethnicity, cohort, 1), :],
+                data=data.loc[(ethnicity, cohort, 1), :],
                 marker=".",
                 color="black",
             )
@@ -63,7 +63,7 @@ def get_figure2():
 
     """
     # get the processed data for plotting
-    difference = prepare_data_figure12()[1]
+    data = prepare_data_figure12()[1]
 
     # create figure 2
     fig2, axs = plt.subplots(
@@ -77,7 +77,7 @@ def get_figure2():
     for ethnicity in [1, 2]:
         for row, cohort in enumerate([50, 51, 52, 53]):
             axs[row, ethnicity - 1].plot(
-                "year", "difference", data=difference.loc[(ethnicity, cohort), :]
+                "year", "difference", data=data.loc[(ethnicity, cohort), :]
             )
             if ethnicity == 1:
                 axs[row, ethnicity - 1].set_ylabel("19" + str(cohort))
@@ -155,7 +155,7 @@ def get_figure3():
 
 def prepare_data_figure12():
     """
-    Take CWHS data for FICA earnings and prepare such that it can be used for
+    Take CWHS data set for FICA earnings and prepare it such that it can be used for
     plotting Figure 1 and 2.
 
     Returns
@@ -168,9 +168,12 @@ def prepare_data_figure12():
         and ineligible for different groups (by ethnicity, year and birth cohort).
 
     """
+    # read data for years 64 to 77
     data = pd.read_stata("data/cwhsa.dta")
+    # declare that it is FICA earnings
     data["type"] = "TAXAB"
 
+    # read data for the years after 77
     temp_data = pd.read_stata("data/cwhsb.dta")
     data = data.append(temp_data)
 
@@ -185,29 +188,31 @@ def prepare_data_figure12():
         "eligible",
     ] = 1
 
+    # add the cpi to the data
     data_cpi = pd.read_stata("data/cpi_angrist1990.dta")
     data = pd.merge(data, data_cpi, on="year")
 
+    # keep only FICA earnings
     data = data.loc[data["type"] == "TAXAB"]
 
-    # create earnings variable and weights for weighted average
+    # create the average earnings for those with nonzero earnings
     data["earnings"] = data["vmn1"] / (1 - data["vfin1"])
+    # create the sample size for those with nonzero earnings
     data["weights"] = data["vnu1"] * (1 - data["vfin1"])
 
-    # create earnings in 1978 terms
+    # create real earnings in 1978 terms
     data["cpi"] = (data["cpi"] / data.loc[data["year"] == 78, "cpi"].mean()).round(3)
     data["real_earnings"] = data["earnings"] / data["cpi"]
 
-    # adjust earnings like in paper
+    # adjust earnings like in description below Figure 1 in the paper
     for cohort, addition in [(50, 3000), (51, 2000), (52, 1000)]:
         data.loc[data["byr"] == cohort, "real_earnings"] = (
             data.loc[data["byr"] == cohort, "real_earnings"] + addition
         )
 
-    # get groupby weighted means
     table = data.fillna(0)
 
-    # drop groups where the weight sums to zero
+    # drop groups where the weight sums to zero (i.e. where there are no positive earnings)
     sum_group_weights = (
         table.groupby(["race", "byr", "year", "eligible"])["weights"].sum().to_frame()
     )
@@ -216,6 +221,7 @@ def prepare_data_figure12():
     ].index
     table.set_index(["race", "byr", "year", "eligible"], inplace=True)
     table = table.loc[nonzero_weights_index]
+    # get weighted averages within by groups of ethnicity, cohort, year and draft eligibility
     data_temp = table.groupby(["race", "byr", "year", "eligible"]).apply(
         lambda x: np.average(x[["real_earnings"]], weights=x["weights"], axis=0)
     )
@@ -223,7 +229,8 @@ def prepare_data_figure12():
         data_temp.to_list(), columns=["real_earnings"], index=data_temp.index
     )
 
-    # create dataframe for figure 2
+    # create dataframe with the differences in real earnings
+    # for the above groups across eligibility
     difference = pd.DataFrame(index=data_temp.index, columns=["difference"])
     difference = difference.loc[(slice(None), slice(None), slice(None), 0), :]
     difference.reset_index("eligible", drop=True, inplace=True)

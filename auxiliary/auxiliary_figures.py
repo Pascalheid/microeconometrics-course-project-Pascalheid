@@ -104,7 +104,7 @@ def get_figure3():
     # load data set
     data = pd.read_stata("data/cwhsc_new.dta")
 
-    # drop some variables
+    # keep only Total W-2 compensation
     data = data.loc[
         (data["year"] >= 81) & (data["race"] == 1) & (data["type"] == "TOTAL")
     ]
@@ -141,7 +141,8 @@ def get_figure3():
     data = data.loc[data["year"] == 81]
 
     # get fitted values for linear fit plot
-    fitted_values = smf.ols(formula="ernres_y ~ pres", data=data).fit().predict()
+    linear_fit = smf.ols(formula="ernres_y ~ pres", data=data).fit()
+    fitted_values = linear_fit.predict()
 
     # plot earnings residuals on probablity residuals
     fig, ax = plt.subplots()

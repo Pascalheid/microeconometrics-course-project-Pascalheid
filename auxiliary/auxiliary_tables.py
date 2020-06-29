@@ -192,6 +192,7 @@ def get_table2():
     # create ethnicity dummy
     data_cwhsa["white"] = 1 - pd.get_dummies(data_cwhsa["race"], drop_first=True)
 
+    # get the sample size across groups
     data_cwhsa = data_cwhsa.groupby(["byr", "white", "eligible"])["vnu1"].sum()
 
     data_dmdc = pd.read_stata("data/dmdcdat.dta")
@@ -215,11 +216,13 @@ def get_table2():
     # create ethnicity dummy
     data_dmdc["white"] = 1 - pd.get_dummies(data_dmdc["race"], drop_first=True)
 
+    # get sample size per group
     data_dmdc = data_dmdc.groupby(["byr", "white", "eligible"])["nsrvd"].sum()
 
     # merge the two data sets
     data_dmdc_cwsh = pd.merge(data_cwhsa, data_dmdc, on=["byr", "white", "eligible"])
 
+    # calculate sample size for the sum of eligible and non-eligible per group and per data set
     nsrvd_all = (
         data_dmdc_cwsh.groupby(["white", "byr"])["nsrvd"]
         .sum()
@@ -236,10 +239,15 @@ def get_table2():
         pd.merge(nsrvd_all, vnu1_all, on=["byr", "white"])
     )
 
+    # get probability of being a veteran conditional on eligibility status
+    # times 100 because the DMDC data is across the whole populationa and
+    # the CWSH is only a sample of one percent
     data_dmdc_cwsh["p_vet"] = data_dmdc_cwsh["nsrvd"] / (100 * data_dmdc_cwsh["vnu1"])
+    # calculate prob of being a veteran in general
     data_dmdc_cwsh["p_vet_all"] = data_dmdc_cwsh["nsrvd_all"] / (
         100 * data_dmdc_cwsh["vnu1_all"]
     )
+    # calculate the standard errors
     data_dmdc_cwsh["se_vet"] = (
         data_dmdc_cwsh["p_vet"] * (1 - data_dmdc_cwsh["p_vet"]) / data_dmdc_cwsh["vnu1"]
     ) ** 0.5
@@ -334,7 +342,7 @@ def get_table2():
                 & (data_sipp["u_brthyr"] <= year + 1)
                 & (data_sipp["nrace"] == dummy)
             ]
-            # run WLS regression
+            # run WLS regression to get probabilitiy of being a veteran per group
             wls = smf.wls(
                 formula="nvstat ~ 1", data=data_temp, weights=data_temp["fnlwgt_5"]
             ).fit()
@@ -348,10 +356,12 @@ def get_table2():
             ].shape[
                 0
             ]
+
             table_2[ethnicity].loc[
                 ("SIPP (84)", year, slice(None)), "P(Veteran)"
             ] = coefficient.append(standard_error).values
 
+            # get prob of being a veteran given eligibility
             data_temp = data_sipp.loc[
                 (data_sipp["u_brthyr"] >= year - 1)
                 & (data_sipp["u_brthyr"] <= year + 1)
@@ -367,6 +377,7 @@ def get_table2():
                 ("SIPP (84)", year, slice(None)), "P(Veteran|eligible)"
             ] = coefficient.append(standard_error).values
 
+            # get prob of being veteran given not being eligible
             data_temp = data_sipp.loc[
                 (data_sipp["u_brthyr"] >= year - 1)
                 & (data_sipp["u_brthyr"] <= year + 1)
@@ -419,7 +430,7 @@ def get_table2():
     return table_2
 
 
-# for the last second to last column I get different standard errors as this difference
+# for the second to last column I get different standard errors as this difference
 # directly transfers from table 2
 def get_table3():
     """
@@ -498,9 +509,9 @@ def get_table3():
 
     # get variance
     data["var"] = 1 / data["iweight_old"] * data["smplsz"] * data["cpi2"]
-    # create real earnings
+    # create nominal earnings from the included real earnings in 1978 dollar terms
     data["nomearn"] = data["earnings"] * data["cpi"]
-    # create eligibilty
+    # create eligibilty dummy
     data["eligible"] = 0
     data.loc[
         ((data["byr"] == 50) & (data["interval"] == 1))
@@ -512,6 +523,7 @@ def get_table3():
     # create ethnicity dummy
     data["white"] = 1 - pd.get_dummies(data["race"], drop_first=True)
 
+    # get the sample size by group
     sumwt = (
         data.groupby(["white", "byr", "year", "eligible", "type"])["smplsz"]
         .sum()
@@ -522,6 +534,7 @@ def get_table3():
         data, sumwt, how="outer", on=["white", "byr", "year", "eligible", "type"]
     )
 
+    # get group variance
     data["var_cm"] = 1 / data["sumwt"] * data["var"]
     # get weighted average
     data = data.groupby(["white", "byr", "year", "eligible", "type"]).apply(
@@ -534,9 +547,11 @@ def get_table3():
         columns=["var_cm", "nomearn", "earnings", "cpi"],
         index=data.index,
     )
+    # only keep adjusted FICA data
     data = data.loc[(slice(None), slice(None), slice(None), slice(None), "ADJ"), :]
     data.reset_index("type", drop=True, inplace=True)
 
+    # fill adjusted FICA earnings column
     for dummy, ethnicity in enumerate(["white", "nonwhite"]):
         new_dummy = 1 - dummy
         table_3[ethnicity].loc[
@@ -557,6 +572,7 @@ def get_table3():
             ** 0.5
         )
 
+    # fill the last column with the Wald estimate based on FICA earnings
     for dummy, ethnicity in enumerate(["white", "nonwhite"]):
         new_dummy = 1 - dummy
         for stat in statistic:
@@ -624,6 +640,8 @@ def get_table4():
     data = data.join(pd.get_dummies(data["year"], prefix="year"))
     data = data.join(pd.get_dummies(data["byr"], prefix="byr"))
 
+    # get columns for probability of serving within cohort and
+    # a given set of lottery numbers by cohort
     for birthyear in [50, 51, 52, 53]:
         data["ps_r" + str(birthyear)] = data["ps_r"] * (data["byr"] == birthyear)
 
@@ -646,6 +664,7 @@ def get_table4():
             model2 = model1[:-1]
             model2.extend(["ps_r50", "ps_r51", "ps_r52", "ps_r53"])
 
+            # get an estimate of alpha for model 1 (alpha not varying by cohort)
             wls_model1 = smf.wls(
                 formula="earnings ~ " + " + ".join(model1[:]),
                 data=data_temp,
@@ -655,6 +674,7 @@ def get_table4():
                 (data["race"] == race) & (data["type"] == source), "alpha1"
             ] = wls_model1.params["ps_r"]
 
+            # get an estimate of alpha for model 2 (alpha varying by cohort)
             wls_model2 = smf.wls(
                 formula="earnings ~ " + " + ".join(model2[:]),
                 data=data_temp,
@@ -674,7 +694,8 @@ def get_table4():
     for (cohort, ethnicity), size in zip(cohort_ethnicity, sample):
         data.loc[(data["byr"] == cohort) & (data["race"] == ethnicity), "smpl"] = size
 
-    # generate ............................. for the two models
+    # generate alpha squared times Variance of ps_r for the two models
+    # as needed for the GLS minimand m(theta) on page 325
     data["term1"] = (
         data["alpha1"] ** 2 * data["ps_r"] * (1 - data["ps_r"]) * (1 / data["smpl"])
     )
@@ -726,12 +747,15 @@ def get_table4():
     term2 = data["term2"].values.reshape((int(5304 / 4), 4, 1))
     wtvec = data["wts"].values.reshape((int(5304 / 4), 4, 1))
 
+    # get the term in the squared brackets on page 325
     covmtrx1 = wtvec * covmtrx * np.transpose(wtvec, (0, 2, 1)) + term1
     covmtrx2 = wtvec * covmtrx * np.transpose(wtvec, (0, 2, 1)) + term2
 
+    # get its inverse and decompose it
     final1 = np.linalg.cholesky(np.linalg.inv(covmtrx1))
     final2 = np.linalg.cholesky(np.linalg.inv(covmtrx2))
 
+    # transform the data for model 1 and 2 by using the above matrices
     Y1 = np.matmul(np.transpose(final1, (0, 2, 1)), Y).reshape((5304, 1))
     X1 = np.matmul(np.transpose(final1, (0, 2, 1)), X1).reshape((5304, 8))
     data2 = pd.DataFrame(
@@ -769,7 +793,8 @@ def get_table4():
         "Total W-2 Compensation",
     ]
 
-    # for loop to run regressions for the two models and fill table 4
+    # for loop to run regressions for the two models and for the different earnings
+    # and fill table 4
     for dummy, ethnicity in enumerate(["white", "nonwhite"]):
         table_4[ethnicity] = pd.DataFrame(index=index, columns=columns)
         new_dummy = dummy + 1

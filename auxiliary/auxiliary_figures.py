@@ -9,7 +9,7 @@ import statsmodels.formula.api as smf
 from matplotlib.lines import Line2D
 
 
-def get_figure1():
+def get_figure1(data_cwhsa, data_cwhsb):
     """
     Creates Figure 1 of the paper.
 
@@ -20,7 +20,7 @@ def get_figure1():
 
     """
     # get the processed data for plotting
-    data = prepare_data_figure12()[0]
+    data = prepare_data_figure12(data_cwhsa, data_cwhsb)[0]
 
     # create figure 1
     fig1, (ax1, ax2) = plt.subplots(1, 2)
@@ -52,7 +52,7 @@ def get_figure1():
     fig1.tight_layout()
 
 
-def get_figure2():
+def get_figure2(data_cwhsa, data_cwhsb):
     """
     Creates Figure 2 of the paper.
 
@@ -63,7 +63,7 @@ def get_figure2():
 
     """
     # get the processed data for plotting
-    data = prepare_data_figure12()[1]
+    data = prepare_data_figure12(data_cwhsa, data_cwhsb)[1]
 
     # create figure 2
     fig2, axs = plt.subplots(
@@ -154,7 +154,7 @@ def get_figure3():
     ax.set_xlabel("Probability Residual")
 
 
-def prepare_data_figure12():
+def prepare_data_figure12(data_cwhsa, data_cwhsb):
     """
     Take CWHS data set for FICA earnings and prepare it such that it can be used for
     plotting Figure 1 and 2.
@@ -170,12 +170,12 @@ def prepare_data_figure12():
 
     """
     # read data for years 64 to 77
-    data = pd.read_stata("data/cwhsa.dta")
+    data = data_cwhsa
     # declare that it is FICA earnings
     data["type"] = "TAXAB"
 
     # read data for the years after 77
-    temp_data = pd.read_stata("data/cwhsb.dta")
+    temp_data = data_cwhsb
     data = data.append(temp_data)
 
     data = data.loc[(data["year"] > 65) & (data["byr"] >= 50)]

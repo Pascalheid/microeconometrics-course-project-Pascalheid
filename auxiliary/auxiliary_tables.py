@@ -9,7 +9,7 @@ import pandas as pd
 import statsmodels.formula.api as smf
 
 
-def get_table1():
+def get_table1(data_cwhsa, data_cwhsb):
     """
     Create Table 1 of the paper.
 
@@ -22,12 +22,12 @@ def get_table1():
 
     """
     # read data for years 64 to 77
-    data = pd.read_stata("data/cwhsa.dta")
+    data = data_cwhsa
     # declare it as FICA data
     data["type"] = "TAXAB"
 
     # reat FICA and Total W-2 data for years 78 and onwards
-    temp_data = pd.read_stata("data/cwhsb.dta")
+    temp_data = data_cwhsb
     data = data.append(temp_data)
 
     data = data.loc[(data["year"] > 65) & (data["byr"] >= 50)]
@@ -150,7 +150,7 @@ def get_table1():
 # for the CWHS data set I am missing the ingredients for cohort 1950
 # for the SIPP I get different standard errors which is most likely due to the
 # implementation of the WLS. I get the same results as in stata, though.
-def get_table2():
+def get_table2(data_cwhsa, data_dmdc, data_sipp):
     """
     Create Table 2 of the paper.
     The CWHS data set I have is missing the ingredients to replicate Table 2
@@ -166,7 +166,6 @@ def get_table2():
         for the respective ethnicity specified as key.
 
     """
-    data_cwhsa = pd.read_stata("data/cwhsa.dta")
 
     data_cwhsa = data_cwhsa.loc[
         (data_cwhsa["year"] == 70) & (data_cwhsa["byr"] >= 51),
@@ -194,8 +193,6 @@ def get_table2():
 
     # get the sample size across groups
     data_cwhsa = data_cwhsa.groupby(["byr", "white", "eligible"])["vnu1"].sum()
-
-    data_dmdc = pd.read_stata("data/dmdcdat.dta")
 
     # create eligibility dummy
     data_dmdc["eligible"] = 0
@@ -331,9 +328,6 @@ def get_table2():
         # create table 2
         table_2[ethnicity] = table_2_temp
 
-    # read the SIPP data set
-    data_sipp = pd.read_stata("data/sipp2.dta")
-
     for dummy, ethnicity in enumerate(["white", "nonwhite"]):
         for year in np.arange(1950, 1954):
             # fill table 2 with values from the SIPP data set
@@ -432,7 +426,7 @@ def get_table2():
 
 # for the second to last column I get different standard errors as this difference
 # directly transfers from table 2
-def get_table3():
+def get_table3(data_cwhsa, data_cwhsb, data_dmdc, data_sipp, data_cwhsc_new):
     """
     Create Table 3 of the paper.
     For the second to last column I get different standard errors as those results
@@ -473,8 +467,8 @@ def get_table3():
     table_3["nonwhite"] = pd.DataFrame(index=index, columns=columns)
 
     # fill table 3 with results from table 1 and 2
-    table_1 = get_table1()
-    table_2 = get_table2()
+    table_1 = get_table1(data_cwhsa, data_cwhsb)
+    table_2 = get_table2(data_cwhsa, data_dmdc, data_sipp)
     for ethnicity in ["white", "nonwhite"]:
         table_3[ethnicity].loc[
             :, (slice(None), ["FICA Earnings", "Total W-2 Earnings"])
@@ -498,7 +492,7 @@ def get_table3():
             )
 
     # fill table 3 with new values
-    data = pd.read_stata("data/cwhsc_new.dta")
+    data = data_cwhsc_new
     data_cpi = pd.read_stata("data/cpi_angrist1990.dta")
     data = pd.merge(data, data_cpi, on="year")
 

@@ -4,9 +4,18 @@ import pandas as pd
 
 def background_negative_green(val):
     """
-    Takes a scalar and returns a string with
-    the css property `'color: red'` for negative
-    strings, black otherwise.
+    Changes the background color of a cell in DataFrame according to its value.
+
+    Parameters
+    ----------
+    val : float
+        single cell value in a pandas DataFrame.
+
+    Returns
+    -------
+    str
+        return background color for pandas DataFrame.
+
     """
     if val == "":
         color = "white"
@@ -27,6 +36,24 @@ def background_negative_green(val):
 
 
 def p_value_star(data, rows, columns):
+    """
+    Adds a star to values that are statistically significant to the 5 percent level.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame for which the stars should be added.
+    rows : tuple
+        The row index using slices.
+    columns : tuple
+        The column index using slices.
+
+    Returns
+    -------
+    data : pd.DataFrame
+        Returns the original DataFrame with significance stars.
+
+    """
     if isinstance(data.loc[rows, columns], pd.Series):
         data_temp = data.loc[rows, columns].to_frame()
         for index in np.arange(0, data_temp.shape[0], 2):

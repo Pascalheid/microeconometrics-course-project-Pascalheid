@@ -1,5 +1,6 @@
 name: angrist_1990
-
+channels:
+  - conda-forge
 dependencies:
 - python
 - numpy
@@ -9,4 +10,5 @@ dependencies:
 - seaborn
 - statsmodels
 - pip
+- jupyter_contrib_nbextensions
 - pip:

@@ -91,7 +91,7 @@ def get_figure2(data_cwhsa, data_cwhsb):
     fig2.suptitle("Difference in earnings by cohort and ethnicity", fontsize=13)
 
 
-def get_figure3():
+def get_figure3(data_cwhsc_new):
     """
     Create Figure 3 of the paper.
 
@@ -102,7 +102,7 @@ def get_figure3():
 
     """
     # load data set
-    data = pd.read_stata("data/cwhsc_new.dta")
+    data = data_cwhsc_new
 
     # keep only Total W-2 compensation
     data = data.loc[

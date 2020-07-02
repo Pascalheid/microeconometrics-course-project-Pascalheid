@@ -21,7 +21,6 @@ def get_table1(data_cwhsa, data_cwhsb):
         for the respective ethnicity specified as key.
 
     """
-    # read data for years 64 to 77
     data = data_cwhsa
     # declare it as FICA data
     data["type"] = "TAXAB"
@@ -141,6 +140,12 @@ def get_table1(data_cwhsa, data_cwhsb):
         table_1_temp.loc[(slice(None), "Standard Error"), :] = standard_errors_temp
         table_1_temp = table_1_temp.astype(float).round(2)
         table_1_temp.fillna("", inplace=True)
+
+        # cm = sns.light_palette("green", as_cmap=True, reverse=True)
+        # s = table_1_temp.style.background_gradient(
+        # cmap=cm, subset=pd.IndexSlice[np.arange(0, 38, 2), ["FICA", "TOTAL"]])
+        # table_1_temp = table_1_temp.style.background_gradient(
+        # cmap=cm, subset= pd.IndexSlice[[(78, "Average")], :], axis=1)
 
         table_1[ethnicity] = table_1_temp
 
@@ -615,7 +620,7 @@ def get_table3(data_cwhsa, data_cwhsb, data_dmdc, data_sipp, data_cwhsc_new):
 
 
 # my results are like in the stata code but the table in Angrist is a tiny bit different
-def get_table4():
+def get_table4(data_cwhsc_new):
     """
     Create Table 4 of the paper.
 
@@ -627,7 +632,7 @@ def get_table4():
         for the respective ethnicity specified as key.
 
     """
-    data = pd.read_stata("data/cwhsc_new.dta")
+    data = data_cwhsc_new
     data = data.loc[data["year"] >= 81].reset_index(drop=True)
 
     # create cohort and year dummies
@@ -689,7 +694,7 @@ def get_table4():
         data.loc[(data["byr"] == cohort) & (data["race"] == ethnicity), "smpl"] = size
 
     # generate alpha squared times Variance of ps_r for the two models
-    # as needed for the GLS minimand m(theta) on page 325
+    # as needed for the GLS tarnsformation on page 325
     data["term1"] = (
         data["alpha1"] ** 2 * data["ps_r"] * (1 - data["ps_r"]) * (1 / data["smpl"])
     )

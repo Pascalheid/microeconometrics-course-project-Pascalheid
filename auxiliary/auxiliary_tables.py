@@ -13,6 +13,13 @@ def get_table1(data_cwhsa, data_cwhsb):
     """
     Create Table 1 of the paper.
 
+    Parameters
+    ----------
+    data_cwhsa : pd.DataFrame
+        CWHS data until 1978.
+    data_cwhsb : pd.DataFrame
+        CWHS data from 1978 on.
+
     Returns
     -------
     table_1 : dictionairy
@@ -163,6 +170,15 @@ def get_table2(data_cwhsa, data_dmdc, data_sipp):
     Further I get different standard errors for the SIPP data which is most likely
     due to my implementation of the Weighted Least Squares.
 
+    Parameters
+    ----------
+    data_cwhsa : pd.DataFrame
+        CWHS data until 1978.
+    data_dmdc : pd.DataFrame
+        DMDC data with fraction of veterans.
+    data_sipp : pd.DataFrame
+        SIPP data fraction of veterans.
+
     Returns
     -------
     table_2 : dictionairy
@@ -242,7 +258,7 @@ def get_table2(data_cwhsa, data_dmdc, data_sipp):
     )
 
     # get probability of being a veteran conditional on eligibility status
-    # times 100 because the DMDC data is across the whole populationa and
+    # times 100 because the DMDC data is across the whole population and
     # the CWSH is only a sample of one percent
     data_dmdc_cwsh["p_vet"] = data_dmdc_cwsh["nsrvd"] / (100 * data_dmdc_cwsh["vnu1"])
     # calculate prob of being a veteran in general
@@ -437,12 +453,26 @@ def get_table3(data_cwhsa, data_cwhsb, data_dmdc, data_sipp, data_cwhsc_new):
     For the second to last column I get different standard errors as those results
     are taken exactly from Table 2.
 
+    Parameters
+    ----------
+    data_cwhsa : pd.DataFrame
+        CWHS data until 1978.
+    data_cwhsb : pd.DataFrame
+        CWHS data from 1978 on.
+    data_dmdc : pd.DataFrame
+        DMDC data with fraction of veterans.
+    data_sipp : pd.DataFrame
+        SIPP data fraction of veterans.
+    data_cwhsc_new : pd.DataFrame
+        CWSH data with real earnings of also adjusted FICA.
+
     Returns
     -------
     table_3 : dictionairy
         The dict holds the keys "white" and "nonwhite".
         Those are both pd.DataFrame's that contain the parts of Table 3
         for the respective ethnicity specified as key.
+
 
     """
     # create data frame for table 3
@@ -623,6 +653,11 @@ def get_table3(data_cwhsa, data_cwhsb, data_dmdc, data_sipp, data_cwhsc_new):
 def get_table4(data_cwhsc_new):
     """
     Create Table 4 of the paper.
+
+    Parameters
+    ----------
+    data_cwhsc_new : pd.DataFrame
+        CWSH data with real earnings of also adjusted FICA.
 
     Returns
     -------

@@ -13,10 +13,16 @@ def get_figure1(data_cwhsa, data_cwhsb):
     """
     Creates Figure 1 of the paper.
 
+    Parameters
+    ----------
+    data_cwhsa : pd.DataFrame
+        CWHS data until 1978.
+    data_cwhsb : pd.DataFrame
+        CWHS data from 1978 on.
+
     Returns
     -------
-    fig1 : matplot figure
-        Figure 1 of the paper.
+    None.
 
     """
     # get the processed data for plotting
@@ -56,10 +62,16 @@ def get_figure2(data_cwhsa, data_cwhsb):
     """
     Creates Figure 2 of the paper.
 
+    Parameters
+    ----------
+    data_cwhsa : pd.DataFrame
+        CWHS data until 1978.
+    data_cwhsb : pd.DataFrame
+        CWHS data from 1978 on.
+
     Returns
     -------
-    fig2 : matplot figure
-        Figure 2 of the paper.
+    None.
 
     """
     # get the processed data for plotting
@@ -95,10 +107,14 @@ def get_figure3(data_cwhsc_new):
     """
     Create Figure 3 of the paper.
 
+    Parameters
+    ----------
+    data_cwhsc_new : pd.DataFrame
+        CWSH data with real earnings of also adjusted FICA.
+
     Returns
     -------
-    fig : matplot figure
-        Figure 3 of the paper.
+    None.
 
     """
     # load data set
@@ -158,6 +174,13 @@ def prepare_data_figure12(data_cwhsa, data_cwhsb):
     """
     Take CWHS data set for FICA earnings and prepare it such that it can be used for
     plotting Figure 1 and 2.
+
+    Parameters
+    ----------
+    data_cwhsa : pd.DataFrame
+        CWHS data until 1978.
+    data_cwhsb : pd.DataFrame
+        CWHS data from 1978 on.
 
     Returns
     -------

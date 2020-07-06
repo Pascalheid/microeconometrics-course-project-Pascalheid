@@ -31,6 +31,9 @@ def get_flexible_table4(data_cwhsc_new, years, data_source, cohorts):
     data_source : list
         contains strings with the names for which table 4 is supposed to be recreated.
         To recreate the original table: ["TAXAB", "ADJ", "TOTAL"].
+    cohorts : list
+        contains the cohorts that are supposed to be included for the calculation.
+        For example: [50, 51, 52].
 
     Returns
     -------
@@ -264,7 +267,22 @@ def get_flexible_table4(data_cwhsc_new, years, data_source, cohorts):
 
 
 def get_figure1_extension1(results_model1, results_model2):
-    # Plot the effects for white men in Model 1 and 2
+    """
+    Plot the results of Table 4 for white men in Model 1 and 2 using different
+    years of earnings.
+
+    Parameters
+    ----------
+    results_model1 : np.array
+        results from looping over different years of earnings for model 1 in table 4.
+    results_model2 : np.array
+        results from looping over different years of earnings for model 2 in table 4.
+
+    Returns
+    -------
+    None.
+
+    """
     cohorts = [1950, 1951, 1952, 1953]
     fig, (axis1, axis2) = plt.subplots(1, 2, sharex=True, sharey=True)
     for number, cohort in enumerate(cohorts):
@@ -296,6 +314,22 @@ def get_figure1_extension1(results_model1, results_model2):
 
 
 def get_figure2_extension1(results_model2, results_model2_53):
+    """
+    Plot comparison of Model 2 results for several different years of earnings
+    when excluding cohort 1953 as opposed to including it.
+
+    Parameters
+    ----------
+    results_model2 : np.array
+        results from looping over different years of earnings for model 2 in table 4.
+    results_model2_53 : np.array
+        same as above but excluding cohort of 1953.
+
+    Returns
+    -------
+    None.
+
+    """
     fig, axis = plt.subplots()
     axis.plot(
         np.arange(74, 82),
@@ -318,6 +352,36 @@ def get_figure2_extension1(results_model2, results_model2_53):
 
 
 def get_bias(data_cwhsa, data_cwhsb, data_dmdc, data_sipp, data_cwhsc_new, interval):
+    """
+    Get the original wald estimates from Table 3. Calculate their bias and the
+    resulting true delta depending on an interval of possible effects of work experience
+    on earnings.
+
+    Parameters
+    ----------
+    data_cwhsa : pd.DataFrame
+        CWHS data until 1978.
+    data_cwhsb : pd.DataFrame
+        CWHS data from 1978 on.
+    data_dmdc : pd.DataFrame
+        DMDC data with fraction of veterans.
+    data_sipp : pd.DataFrame
+        SIPP data fraction of veterans.
+    data_cwhsc_new : pd.DataFrame
+        CWSH data with real earnings of also adjusted FICA.
+    interval : np.array
+        interval of possible effects of work experience on real earnings.
+
+    Returns
+    -------
+    bias : pd.DataFrame
+        results of the bias.
+    true_delta : pd.DataFrame
+        results of the true delta.
+    wald : pd.DataFrame
+        the wald estimates from table 3.
+
+    """
 
     table_3 = get_table3(data_cwhsa, data_cwhsb, data_dmdc, data_sipp, data_cwhsc_new)
 
@@ -391,6 +455,21 @@ def get_bias(data_cwhsa, data_cwhsb, data_dmdc, data_sipp, data_cwhsc_new, inter
 
 
 def get_figure1_extension2(bias, interval):
+    """
+    Plot bias on the interval.
+
+    Parameters
+    ----------
+    bias : pd.DataFrame
+        contains results from get_bias().
+    interval : np.array
+        interval over which the resulting bias was calculated.
+
+    Returns
+    -------
+    None.
+
+    """
     fig, (ax0, ax1, ax2) = plt.subplots(
         1, 3, sharey=True, sharex=True, gridspec_kw={"wspace": 0.05}
     )
@@ -409,7 +488,25 @@ def get_figure1_extension2(bias, interval):
     ax0.set_ylabel("Bias", fontsize=13)
 
 
-def get_figure2_extension2(true_delta, wald, interval, by="year"):
+def get_figure2_extension2(true_delta, wald, interval):
+    """
+    Plot true delta in comparison to the wald estimate depending on the interval
+    chosen in get_bias().
+
+    Parameters
+    ----------
+    true_delta : pd.DataFrame
+        the true delta calulated in get_bias().
+    wald : pd.DataFrame
+        wald estimate calculated in get_bias().
+    interval : np.array
+        interval over which the resulting true_delta was calculated.
+
+    Returns
+    -------
+    None.
+
+    """
     fig, axs = plt.subplots(
         4, 3, sharey="row", sharex=True, gridspec_kw={"hspace": 0.1, "wspace": 0}
     )

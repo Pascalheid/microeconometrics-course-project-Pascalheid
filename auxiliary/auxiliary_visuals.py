@@ -1,3 +1,7 @@
+"""
+This module contains the function to create the shades of grey visuals for
+Table 1 and the function to create significance stars.
+"""
 import numpy as np
 import pandas as pd
 
@@ -14,7 +18,7 @@ def background_negative_green(val):
     Returns
     -------
     str
-        return background color for pandas DataFrame.
+        return background color for the cell of pandas DataFrame.
 
     """
     if val == "":
